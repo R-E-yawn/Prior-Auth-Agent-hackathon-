@@ -100,14 +100,6 @@ export default function SelectPage() {
                         </p>
                       </div>
                     </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className="text-xs font-medium text-slate-700">
-                        {p.requestedMedication}
-                      </p>
-                      <p className="text-xs text-slate-400 mt-0.5 max-w-[180px] truncate">
-                        {p.primaryDiagnosis}
-                      </p>
-                    </div>
                   </div>
                 </button>
               ))}
