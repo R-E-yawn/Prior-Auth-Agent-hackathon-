@@ -32,7 +32,7 @@ async function runAgent(
 
   const stream = client.messages.stream({
     model: MODEL,
-    max_tokens: 1024,
+    max_tokens: 7024,
     system,
     messages: [{ role: "user", content: userPrompt }],
   });
@@ -171,7 +171,7 @@ export async function orchestrate(
 
   const formStream = client.messages.stream({
     model: MODEL,
-    max_tokens: 4096,
+    max_tokens: 7096,
     system: FORM_AGENT_SYSTEM,
     messages: [{ role: "user", content: formPrompt }],
   });
