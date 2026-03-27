@@ -13,7 +13,7 @@ import {
   buildFormAgentPrompt,
 } from "./prompts";
 
-const MODEL = "claude-opus-4-6";
+const MODEL = "claude-sonnet-4-6";
 
 type SendFn = (event: SSEEvent) => void;
 
@@ -32,7 +32,7 @@ async function runAgent(
 
   const stream = client.messages.stream({
     model: MODEL,
-    max_tokens: 7024,
+    max_tokens: 4024,
     system,
     messages: [{ role: "user", content: userPrompt }],
   });
@@ -94,6 +94,72 @@ function parseForm(raw: string): PriorAuthForm | null {
       }
     }
     return null;
+  }
+}
+
+// ─── Form-only runner (used after parallel agents already completed) ──────────
+
+export interface FormOnlyInput {
+  patientContext: string;
+  requestText: string;
+  isUrgent: boolean;
+  questionAnswers: { question: string; answer: string }[];
+  patientSummary: string;
+  stepTherapySummary: string;
+  clinicalSummary: string;
+}
+
+export async function orchestrateFormOnly(
+  input: FormOnlyInput,
+  send: SendFn
+): Promise<void> {
+  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const {
+    patientContext,
+    requestText,
+    isUrgent,
+    questionAnswers,
+    patientSummary,
+    stepTherapySummary,
+    clinicalSummary,
+  } = input;
+
+  send({ type: "form_start" });
+
+  const formPrompt = buildFormAgentPrompt(
+    patientContext,
+    requestText,
+    isUrgent,
+    questionAnswers,
+    patientSummary,
+    stepTherapySummary,
+    clinicalSummary
+  );
+
+  let formRaw = "";
+
+  const formStream = client.messages.stream({
+    model: MODEL,
+    max_tokens: 4096,
+    system: FORM_AGENT_SYSTEM,
+    messages: [{ role: "user", content: formPrompt }],
+  });
+
+  for await (const event of formStream) {
+    if (
+      event.type === "content_block_delta" &&
+      event.delta.type === "text_delta"
+    ) {
+      formRaw += event.delta.text;
+      send({ type: "form_chunk", text: event.delta.text });
+    }
+  }
+
+  const form = parseForm(formRaw);
+  if (form) {
+    send({ type: "form_done", form });
+  } else {
+    send({ type: "error", message: "Failed to parse completed form. Please retry." });
   }
 }
 
@@ -176,7 +242,7 @@ export async function orchestrate(
 
   const formStream = client.messages.stream({
     model: MODEL,
-    max_tokens: 7096,
+    max_tokens: 4096,
     system: FORM_AGENT_SYSTEM,
     messages: [{ role: "user", content: formPrompt }],
   });

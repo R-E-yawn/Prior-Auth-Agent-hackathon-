@@ -37,6 +37,12 @@ export default function ProcessingPage() {
   const [requestData, setRequestData] = useState<AuthRequest | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const hasStarted = useRef(false);
+  // Stores parallel agent outputs so Generate Form can skip re-running them
+  const parallelOutputs = useRef<{
+    patientSummary: string;
+    stepTherapySummary: string;
+    clinicalSummary: string;
+  } | null>(null);
 
   useEffect(() => {
     if (hasStarted.current) return;
@@ -65,6 +71,54 @@ export default function ProcessingPage() {
       },
     }));
 
+  // Shared SSE event handler used by both runStream and handleGenerateForm
+  const handle = (ev: SSEEvent) => {
+    switch (ev.type) {
+      case "agent_start":
+        updateAgent(ev.agentId, { status: "running", output: "" });
+        break;
+      case "agent_chunk":
+        updateAgent(ev.agentId, (p) => ({ output: p.output + ev.text }));
+        break;
+      case "agent_done":
+        updateAgent(ev.agentId, { status: "done" });
+        break;
+      case "questions_parsed":
+        setQuestions(ev.questions);
+        break;
+      case "all_parallel_done":
+        setAllParallelDone(true);
+        setPhase("form");
+        // Snapshot outputs so Generate Form can call /api/form without re-running agents
+        setAgents((current) => {
+          parallelOutputs.current = {
+            patientSummary: current.patient?.output ?? "",
+            stepTherapySummary: current.stepTherapy?.output ?? "",
+            clinicalSummary: current.clinical?.output ?? "",
+          };
+          return current;
+        });
+        break;
+      case "form_start":
+        setFormRunning(true);
+        updateAgent("form", { status: "running", output: "" });
+        break;
+      case "form_chunk":
+        updateAgent("form", (p) => ({ output: p.output + ev.text }));
+        break;
+      case "form_done":
+        updateAgent("form", { status: "done" });
+        setPhase("done");
+        sessionStorage.setItem("completedForm", JSON.stringify(ev.form));
+        setTimeout(() => router.push("/result"), 800);
+        break;
+      case "error":
+        setError(ev.message);
+        setFormRunning(false);
+        break;
+    }
+  };
+
   const runStream = async (
     data: AuthRequest,
     qaOverrides: { question: string; answer: string }[]
@@ -89,43 +143,6 @@ export default function ProcessingPage() {
     const decoder = new TextDecoder();
     let buffer = "";
 
-    const handle = (ev: SSEEvent) => {
-      switch (ev.type) {
-        case "agent_start":
-          updateAgent(ev.agentId, { status: "running", output: "" });
-          break;
-        case "agent_chunk":
-          updateAgent(ev.agentId, (p) => ({ output: p.output + ev.text }));
-          break;
-        case "agent_done":
-          updateAgent(ev.agentId, { status: "done" });
-          break;
-        case "questions_parsed":
-          setQuestions(ev.questions);
-          break;
-        case "all_parallel_done":
-          setAllParallelDone(true);
-          setPhase("form");
-          break;
-        case "form_start":
-          setFormRunning(true);
-          updateAgent("form", { status: "running", output: "" });
-          break;
-        case "form_chunk":
-          updateAgent("form", (p) => ({ output: p.output + ev.text }));
-          break;
-        case "form_done":
-          updateAgent("form", { status: "done" });
-          setPhase("done");
-          sessionStorage.setItem("completedForm", JSON.stringify(ev.form));
-          setTimeout(() => router.push("/result"), 800);
-          break;
-        case "error":
-          setError(ev.message);
-          break;
-      }
-    };
-
     try {
       while (true) {
         const { done, value } = await reader.read();
@@ -148,16 +165,60 @@ export default function ProcessingPage() {
     }
   };
 
-  const handleGenerateForm = () => {
-    if (!requestData) return;
-    // Send all questions (with or without answers) so the orchestrator knows
-    // the user has submitted and proceeds to form generation.
+  const handleGenerateForm = async () => {
+    if (!requestData || !parallelOutputs.current) return;
+
     const qaList = questions.map((q, i) => ({ question: q, answer: answers[i] ?? "" }));
-    setAgents((prev) => ({ ...prev, form: { status: "idle", output: "" } }));
-    // Set true immediately so the button disappears before the parallel agents
-    // re-run — prevents double-clicks from aborting the stream mid-way.
+
+    // Hide button and mark form as running immediately
     setFormRunning(true);
-    runStream(requestData, qaList);
+    updateAgent("form", { status: "running", output: "" });
+
+    abortRef.current?.abort();
+    abortRef.current = new AbortController();
+
+    let res: Response;
+    try {
+      res = await fetch("/api/form", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patientId: requestData.patientId,
+          requestText: requestData.requestText,
+          isUrgent: requestData.isUrgent,
+          questionAnswers: qaList,
+          ...parallelOutputs.current,
+        }),
+        signal: abortRef.current.signal,
+      });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Connection failed");
+      setFormRunning(false);
+      return;
+    }
+
+    const reader = res.body!.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            try {
+              handle(JSON.parse(line.slice(6)));
+            } catch { /* ignore */ }
+          }
+        }
+      }
+    } catch (e) {
+      if (e instanceof Error && e.name !== "AbortError") setError(e.message);
+    }
   };
 
   const parallelDone = AGENTS.filter(
