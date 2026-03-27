@@ -1,5 +1,7 @@
 "use client";
 
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import type { AgentMeta } from "@/lib/types";
 
 type Status = "idle" | "running" | "done" | "error";
@@ -75,7 +77,7 @@ export function AgentCard({ meta, status, output }: AgentCardProps) {
 
       {/* Output area */}
       <div
-        className={`min-h-[80px] max-h-[160px] overflow-y-auto rounded-lg p-3 text-xs font-mono leading-relaxed transition-colors ${
+        className={`min-h-[80px] max-h-[160px] overflow-y-auto rounded-lg p-3 text-xs leading-relaxed transition-colors ${
           status === "idle"
             ? "bg-slate-50 text-slate-400"
             : status === "running"
@@ -90,9 +92,9 @@ export function AgentCard({ meta, status, output }: AgentCardProps) {
           <span className="italic">Analyzing…</span>
         )}
         {output.length > 0 && (
-          <span className={status === "running" ? "cursor-blink" : ""}>
-            {output}
-          </span>
+          <div className={`agent-markdown ${status === "running" ? "cursor-blink" : ""}`}>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{output}</ReactMarkdown>
+          </div>
         )}
       </div>
     </div>
