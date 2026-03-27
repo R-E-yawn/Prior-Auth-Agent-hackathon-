@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Medication Prior Authorization Request</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 9pt;
+      color: #000;
+      background: #fff;
+    }
+
+    .page {
+      padding: 0;
+    }
+
+    /* ── Header ── */
+    .form-header {
+      text-align: center;
+      border: 2px solid #000;
+      padding: 8px 12px;
+      margin-bottom: 5px;
+    }
+    .form-header h1 {
+      font-size: 12.5pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+    .form-header .subhead {
+      font-size: 8pt;
+      margin-top: 3px;
+      color: #333;
+    }
+
+    /* ── Section wrapper ── */
+    .section {
+      border: 1px solid #000;
+      margin-bottom: 5px;
+    }
+    .section-header {
+      background: #c8c8c8;
+      font-weight: bold;
+      font-size: 8.5pt;
+      text-transform: uppercase;
+      padding: 3px 7px;
+      border-bottom: 1px solid #000;
+      letter-spacing: 0.2px;
+    }
+    .section-body {
+      padding: 5px 7px;
+    }
+
+    /* ── Rows & fields ── */
+    .row {
+      display: flex;
+      gap: 0;
+      margin-bottom: 5px;
+    }
+    .row:last-child {
+      margin-bottom: 0;
+    }
+    .field {
+      flex: 1;
+      padding-right: 10px;
+    }
+    .field:last-child {
+      padding-right: 0;
+    }
+
+    .field-label {
+      display: block;
+      font-size: 7pt;
+      font-weight: bold;
+      color: #222;
+      margin-bottom: 2px;
+      text-transform: uppercase;
+      letter-spacing: 0.1px;
+    }
+    .field-value {
+      border-bottom: 1px solid #555;
+      min-height: 15px;
+      font-size: 8.5pt;
+      padding: 1px 2px;
+      color: #555;
+      font-style: italic;
+    }
+    .field-value.box {
+      border: 1px solid #777;
+      min-height: 28px;
+      padding: 3px 5px;
+    }
+    .field-value.box-tall {
+      border: 1px solid #777;
+      min-height: 45px;
+      padding: 4px 5px;
+    }
+
+    /* ── Checkboxes ── */
+    .checkbox-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 3px;
+      align-items: center;
+    }
+    .cb-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 8.5pt;
+    }
+    .cb-box {
+      width: 11px;
+      height: 11px;
+      border: 1px solid #000;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .cb-other-line {
+      border-bottom: 1px solid #000;
+      display: inline-block;
+      width: 55px;
+      margin-left: 3px;
+    }
+
+    /* ── Step therapy block ── */
+    .step-block {
+      border: 1px solid #aaa;
+      padding: 5px 7px;
+      margin-bottom: 5px;
+      background: #f9f9f9;
+    }
+    .step-block:last-child {
+      margin-bottom: 0;
+    }
+    .step-block-title {
+      font-weight: bold;
+      font-size: 8pt;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+      letter-spacing: 0.2px;
+    }
+
+    /* ── Attestation ── */
+    .attestation-text {
+      font-size: 8pt;
+      margin-bottom: 7px;
+      line-height: 1.4;
+      color: #222;
+    }
+
+    /* ── Footer ── */
+    .form-footer {
+      margin-top: 5px;
+      font-size: 7pt;
+      color: #666;
+      text-align: center;
+      border-top: 1px solid #ccc;
+      padding-top: 4px;
+    }
+
+    /* ── Utility ── */
+    .note {
+      font-size: 7.5pt;
+      color: #555;
+      font-style: italic;
+      margin-bottom: 6px;
+    }
+    .divider {
+      border-top: 1px solid #ddd;
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ══ HEADER ══ -->
+  <div class="form-header">
+    <h1>Medication Prior Authorization Request Form</h1>
+    <div class="subhead">Submit completed form to your patient's health plan &nbsp;|&nbsp; Retain a copy for your records</div>
+  </div>
+
+  <!-- ══ REQUEST META ══ -->
+  <div class="section">
+    <div class="section-body">
+      <div class="row">
+        <div class="field">
+          <span class="field-label">Date of Request</span>
+          <div class="field-value">{{ dateOfRequest | default("[empty field]") }}</div>
+        </div>
+        <div class="field">
+          <span class="field-label">Authorization / Reference #</span>
+          <div class="field-value">{{ authNumber | default("[empty field]") }}</div>
+        </div>
+        <div class="field" style="flex:2">
+          <span class="field-label">Health Plan / Payer Name</span>
+          <div class="field-value">{{ payerName | default("[empty field]") }}</div>
+        </div>
+        <div class="field">
+          <span class="field-label">Plan Phone / Fax</span>
+          <div class="field-value">{{ planPhone | default("[empty field]") }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ URGENCY ══ -->
+  <div class="section">
+    <div class="section-header">Urgency</div>
+    <div class="section-body">
+      <div class="row">
+        <div class="field">
+          <span class="field-label">Request Type</span>
+          <div class="checkbox-row">
+            <div class="cb-item"><span class="cb-box"></span> Routine</div>
+            <div class="cb-item"><span class="cb-box"></span> Expedited / Urgent</div>
+          </div>
+        </div>
+        <div class="field" style="flex:3">
+          <span class="field-label">Expedited Justification (if applicable)</span>
+          <div class="field-value">{{ expeditedJustification | default("[empty field]") }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 1 — PATIENT INFORMATION ══ -->
+  <div class="section">
+    <div class="section-header">Section 1 &mdash; Patient Information</div>
+    <div class="section-body">
+      <div class="row">
+        <div class="field" style="flex:2">
+          <span class="field-label">Patient Last Name, First Name, MI</span>
+          <div class="field-value">{{ patientName | default("[empty field]") }}</div>
+        </div>
+        <div class="field">
+          <span class="field-label">Date of Birth (MM/DD/YYYY)</span>
+          <div class="field-value">{{ patientDOB | default("[empty field]") }}</div>
+        </div>
+        <div class="field">
+          <span class="field-label">Sex</span>
+          <div class="checkbox-row">
+            <div class="cb-item"><span class="cb-box"></span> M</div>
+            <div class="cb-item"><span class="cb-box"></span> F</div>
+            <div class="cb-item"><span class="cb-box"></span> Other</div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <span class="field-label">Member ID / Insurance ID</span>
+          <div class="field-value">{{ memberID | default("[empty field]") }}</div>
+        </div>
+        <div class="field">
+          <span class="field-label">Group #</span>
+          <div class="field-value">{{ groupNumber | default("[empty field]") }}</div>
+        </div>
+        <div class="field" style="flex:2">
+          <span class="field-label">Patient Address</span>
+          <div class="field-value">{{ patientAddress | default("[empty field]") }}</div>
+        </div>
+        <div class="field">
+          <span class="field-label">Patient Phone</span>
+          <div class="field-value">{{ patientPhone | default("[empty field]") }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 2 — PRESCRIBER / REQUESTING PROVIDER ══ -->
+  <div class="section">
+    <div class="section-header">Section 2 &mdash; Prescriber / Requesting Provider</div>
+    <div class="section-body">
+      <div class="row">
+        <div class="field" style="flex:2">
+          <span class="field-label">Provider Last Name, First Name</span>
+          <div class="field-value">{{ providerName | default("[empty field]") }}</div>
+        </div>
+        <div class="field">
+          <span class="field-label">NPI #</span>
+          <div class="field-value">{{ providerNPI | default("[empty field]") }}</div>
+        </div>
+        <div class="field">
+          <span class="field-label">DEA # (if controlled substance)</span>
+          <div class="field-value">{{ providerDEA | default("[empty field]") }}</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field" style="flex:2">
+          <span class="field-label">Practice / Facility Name</span>
+          <div class="field-value">{{ practiceName | default("[empty field]") }}</div>
+        </div>
+        <div class="field" style="flex:2">
+          <span class="field-label">Practice Address</span>
+          <div class="field-value">{{ practiceAddress | default("[empty field]") }}</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <span class="field-label">Practice Phone</span>
+          <div class="field-value">{{ practicePhone | default("[empty field]") }}</div>
+        </div>
+        <div class="field">
+          <span class="field-label">Practice Fax</span>
+          <div class="field-value">{{ practiceFax | default("[empty field]") }}</div>
+        </div>
+        <div class="field" style="flex:2">
+          <span class="field-label">Contact Person (Office Staff)</span>
+          <div class="field-value">{{ contactPerson | default("[empty field]") }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 3 — REQUESTED MEDICATION ══ -->
+  <div class="section">
+    <div class="section-header">Section 3 &mdash; Requested Medication</div>
+    <div class="section-body">
+      <div class="row">
+        <div class="field" style="flex:2">
+          <span class="field-label">Drug Name — Brand</span>
+          <div class="field-value">{{ drugBrand | default("[empty field]") }}</div>
+        </div>
+        <div class="field" style="flex:2">
+          <span class="field-label">Drug Name — Generic</span>
+          <div class="field-value">{{ drugGeneric | default("[empty field]") }}</div>
+        </div>
+        <div class="field">
+          <span class="field-label">Strength / Dose</span>
+          <div class="field-value">{{ drugStrength | default("[empty field]") }}</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <span class="field-label">Route of Administration</span>
+          <div class="checkbox-row">
+            <div class="cb-item"><span class="cb-box"></span> Oral</div>
+            <div class="cb-item"><span class="cb-box"></span> Injectable</div>
+            <div class="cb-item"><span class="cb-box"></span> Topical</div>
+            <div class="cb-item"><span class="cb-box"></span> Inhaled</div>
+            <div class="cb-item"><span class="cb-box"></span> Other:<span class="cb-other-line"></span></div>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field-label">Frequency</span>
+          <div class="checkbox-row">
+            <div class="cb-item"><span class="cb-box"></span> Once daily</div>
+            <div class="cb-item"><span class="cb-box"></span> BID</div>
+            <div class="cb-item"><span class="cb-box"></span> TID</div>
+            <div class="cb-item"><span class="cb-box"></span> QID</div>
+            <div class="cb-item"><span class="cb-box"></span> Other:<span class="cb-other-line"></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <span class="field-label">Quantity Requested</span>
+          <div class="field-value">{{ quantityRequested | default("[empty field]") }}</div>
+        </div>
+        <div class="field">
+          <span class="field-label">Days Supply</span>
+          <div class="field-value">{{ daysSupply | default("[empty field]") }}</div>
+        </div>
+        <div class="field" style="flex:2">
+          <span class="field-label">Expected Duration of Therapy</span>
+          <div class="field-value">{{ therapyDuration | default("[empty field]") }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 4 — DIAGNOSIS ══ -->
+  <div class="section">
+    <div class="section-header">Section 4 &mdash; Diagnosis</div>
+    <div class="section-body">
+      <div class="row">
+        <div class="field">
+          <span class="field-label">Primary ICD-10 Code</span>
+          <div class="field-value">{{ icd10Primary | default("[empty field]") }}</div>
+        </div>
+        <div class="field" style="flex:3">
+          <span class="field-label">Primary Diagnosis Description</span>
+          <div class="field-value">{{ diagnosisPrimary | default("[empty field]") }}</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <span class="field-label">Secondary ICD-10 Code(s)</span>
+          <div class="field-value">{{ icd10Secondary | default("[empty field]") }}</div>
+        </div>
+        <div class="field" style="flex:3">
+          <span class="field-label">Secondary Diagnoses / Relevant Comorbidities</span>
+          <div class="field-value">{{ diagnosisSecondary | default("[empty field]") }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 5 — CLINICAL INFORMATION ══ -->
+  <div class="section">
+    <div class="section-header">Section 5 &mdash; Clinical Information</div>
+    <div class="section-body">
+      <div class="row">
+        <div class="field">
+          <span class="field-label">Relevant Symptoms and Severity</span>
+          <div class="field-value box">{{ clinicalSymptoms | default("[empty field]") }}</div>
+        </div>
+        <div class="field">
+          <span class="field-label">Relevant Lab Results with Dates (e.g., HbA1c, inflammatory markers)</span>
+          <div class="field-value box">{{ labResults | default("[empty field]") }}</div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <span class="field-label">Why This Specific Drug Is Indicated</span>
+          <div class="field-value box">{{ drugIndication | default("[empty field]") }}</div>
+        </div>
+        <div class="field">
+          <span class="field-label">Why Formulary / Preferred Alternatives Are Contraindicated or Inappropriate</span>
+          <div class="field-value box">{{ formularyContraindication | default("[empty field]") }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SECTION 6 — STEP THERAPY DOCUMENTATION ══ -->
+  <div class="section">
+    <div class="section-header">Section 6 &mdash; Step Therapy Documentation</div>
+    <div class="section-body">
+      <p class="note">List all prior medications tried for this condition. Attach additional sheets if needed.</p>
+
+      {% for trial in stepTherapy %}
+      <div class="step-block">
+        <div class="step-block-title">Drug Trial {{ loop.index }}</div>
+        <div class="row">
+          <div class="field" style="flex:2">
+            <span class="field-label">Drug Name</span>
+            <div class="field-value">{{ trial.drugName | default("[empty field]") }}</div>
+          </div>
+          <div class="field">
+            <span class="field-label">Dose</span>
+            <div class="field-value">{{ trial.dose | default("[empty field]") }}</div>
+          </div>
+          <div class="field">
+            <span class="field-label">Start Date</span>
+            <div class="field-value">{{ trial.startDate | default("[empty field]") }}</div>
+          </div>
+          <div class="field">
+            <span class="field-label">End Date</span>
+            <div class="field-value">{{ trial.endDate | default("[empty field]") }}</div>
+          </div>
+          <div class="field">
+            <span class="field-label">Duration of Trial</span>
+            <div class="field-value">{{ trial.duration | default("[empty field]") }}</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <span class="field-label">Outcome / Reason for Discontinuation</span>
+            <div class="checkbox-row">
+              <div class="cb-item"><span class="cb-box"></span> Inadequate response</div>
+              <div class="cb-item"><span class="cb-box"></span> Adverse reaction</div>
+              <div class="cb-item"><span class="cb-box"></span> Contraindication</div>
+              <div class="cb-item"><span class="cb-box"></span> Other:<span class="cb-other-line"></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <span class="field-label">Additional Comments</span>
+            <div class="field-value">{{ trial.comments | default("[empty field]") }}</div>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="step-block">
+        <div class="step-block-title">Drug Trial 1</div>
+        <div class="row">
+          <div class="field" style="flex:2">
+            <span class="field-label">Drug Name</span>
+            <div class="field-value">[empty field]</div>
+          </div>
+          <div class="field">
+            <span class="field-label">Dose</span>
+            <div class="field-value">[empty field]</div>
+          </div>
+          <div class="field">
+            <span class="field-label">Start Date</span>
+            <div class="field-value">[empty field]</div>
+          </div>
+          <div class="field">
+            <span class="field-label">End Date</span>
+            <div class="field-value">[empty field]</div>
+          </div>
+          <div class="field">
+            <span class="field-label">Duration of Trial</span>
+            <div class="field-value">[empty field]</div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <span class="field-label">Outcome / Reason for Discontinuation</span>
+            <div class="checkbox-row">
+              <div class="cb-item"><span class="cb-box"></span> Inadequate response</div>
+              <div class="cb-item"><span class="cb-box"></span> Adverse reaction</div>
+              <div class="cb-item"><span class="cb-box"></span> Contraindication</div>
+              <div class="cb-item"><span class="cb-box"></span> Other:<span class="cb-other-line"></span></div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <span class="field-label">Additional Comments</span>
+            <div class="field-value">[empty field]</div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+    </div>
+  </div>
+
+  <!-- ══ SECTION 7 — ATTESTATION & SIGNATURE ══ -->
+  <div class="section">
+    <div class="section-header">Section 7 &mdash; Prescriber Attestation &amp; Signature</div>
+    <div class="section-body">
+      <p class="attestation-text">
+        I certify that the information provided on this form is accurate and complete to the best of my knowledge,
+        that the requested medication is medically necessary for the treatment of the above-named patient,
+        and that all required step therapy has been documented.
+      </p>
+      <div class="row">
+        <div class="field" style="flex:3">
+          <span class="field-label">Prescriber Signature</span>
+          <div class="field-value" style="min-height:32px; border-bottom:1px solid #555;"></div>
+        </div>
+        <div class="field">
+          <span class="field-label">Date Signed</span>
+          <div class="field-value" style="min-height:32px; border-bottom:1px solid #555;"></div>
+        </div>
+        <div class="field" style="flex:2">
+          <span class="field-label">Printed Name &amp; Credentials</span>
+          <div class="field-value" style="min-height:32px; border-bottom:1px solid #555;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ FOOTER ══ -->
+  <div class="form-footer">
+    This form is for prior authorization request purposes only. Completion does not guarantee coverage or approval.
+    Retain a copy of this form and all supporting clinical documentation in the patient's medical record.
+  </div>
+
+</div>
+</body>
+</html>
