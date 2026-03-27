@@ -14,6 +14,8 @@ function RequestForm() {
   const [patient, setPatient] = useState<PatientSummary | null>(null);
   const [requestText, setRequestText] = useState("");
   const [isUrgent, setIsUrgent] = useState(false);
+  const [scribeTranscript, setScribeTranscript] = useState("");
+  const [transcriptExpanded, setTranscriptExpanded] = useState(false);
 
   const formLabel =
     FORM_TYPES.find((f) => f.id === formType)?.label ?? "Prior Authorization";
@@ -36,10 +38,10 @@ function RequestForm() {
         });
       });
 
-    // Pre-fill textarea with scribe transcript if one was recorded
-    const scribeTranscript = sessionStorage.getItem("scribeTranscript");
-    if (scribeTranscript) {
-      setRequestText(scribeTranscript);
+    // Load scribe transcript as a separate reference card (don't pre-fill textarea)
+    const saved = sessionStorage.getItem("scribeTranscript");
+    if (saved) {
+      setScribeTranscript(saved);
       sessionStorage.removeItem("scribeTranscript");
     }
   }, [patientId, router]);
@@ -52,6 +54,7 @@ function RequestForm() {
       requestText: requestText.trim(),
       isUrgent,
       questionAnswers: [],
+      scribeTranscript: scribeTranscript || undefined,
     };
     sessionStorage.setItem("authRequest", JSON.stringify(sessionData));
     router.push("/processing");
@@ -98,6 +101,32 @@ function RequestForm() {
           <span className="text-xs text-indigo-600 bg-white border border-indigo-200 px-2.5 py-1 rounded-full font-medium">
             Patient Selected
           </span>
+        </div>
+      )}
+
+      {/* Appointment transcript card (collapsible) */}
+      {scribeTranscript && (
+        <div className="card p-4 flex flex-col gap-2 border-violet-200 bg-violet-50">
+          <button
+            onClick={() => setTranscriptExpanded((v) => !v)}
+            className="flex items-center justify-between w-full text-left"
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-base">🎙️</span>
+              <div>
+                <p className="font-semibold text-violet-900 text-sm">Appointment Transcript</p>
+                <p className="text-xs text-violet-600">Recorded conversation — used as context for AI agents</p>
+              </div>
+            </div>
+            <span className="text-xs text-violet-600 font-medium">
+              {transcriptExpanded ? "▲ Collapse" : "▼ Expand"}
+            </span>
+          </button>
+          {transcriptExpanded && (
+            <div className="mt-1 max-h-[200px] overflow-y-auto rounded-lg p-3 bg-white border border-violet-200 text-xs text-slate-700 leading-relaxed whitespace-pre-wrap">
+              {scribeTranscript}
+            </div>
+          )}
         </div>
       )}
 

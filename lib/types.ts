@@ -161,6 +161,7 @@ export interface AuthRequest {
   requestText: string;
   isUrgent: boolean;
   questionAnswers: { question: string; answer: string }[];
+  scribeTranscript?: string;
 }
 
 export const FORM_TYPES = [

@@ -107,6 +107,7 @@ export interface FormOnlyInput {
   patientSummary: string;
   stepTherapySummary: string;
   clinicalSummary: string;
+  scribeTranscript?: string;
 }
 
 export async function orchestrateFormOnly(
@@ -122,6 +123,7 @@ export async function orchestrateFormOnly(
     patientSummary,
     stepTherapySummary,
     clinicalSummary,
+    scribeTranscript,
   } = input;
 
   send({ type: "form_start" });
@@ -133,7 +135,8 @@ export async function orchestrateFormOnly(
     questionAnswers,
     patientSummary,
     stepTherapySummary,
-    clinicalSummary
+    clinicalSummary,
+    scribeTranscript
   );
 
   let formRaw = "";
@@ -170,6 +173,7 @@ export interface OrchestratorInput {
   requestText: string;
   isUrgent: boolean;
   questionAnswers: { question: string; answer: string }[];
+  scribeTranscript?: string;
 }
 
 export async function orchestrate(
@@ -177,7 +181,7 @@ export async function orchestrate(
   send: SendFn
 ): Promise<void> {
   const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-  const { patientContext, requestText, isUrgent, questionAnswers } = input;
+  const { patientContext, requestText, isUrgent, questionAnswers, scribeTranscript } = input;
 
   // ── Phase 1: Run 4 agents in parallel ────────────────────────────────────
   const [questionsRaw, patientSummary, stepTherapySummary, clinicalSummary] =
@@ -186,7 +190,7 @@ export async function orchestrate(
         client,
         "questions",
         QUESTION_AGENT_SYSTEM,
-        buildQuestionPrompt(patientContext, requestText, isUrgent),
+        buildQuestionPrompt(patientContext, requestText, isUrgent, scribeTranscript),
         send
       ),
       runAgent(
@@ -207,7 +211,7 @@ export async function orchestrate(
         client,
         "clinical",
         CLINICAL_AGENT_SYSTEM,
-        buildClinicalPrompt(patientContext, requestText),
+        buildClinicalPrompt(patientContext, requestText, scribeTranscript),
         send
       ),
     ]);
@@ -235,7 +239,8 @@ export async function orchestrate(
     questionAnswers,
     patientSummary,
     stepTherapySummary,
-    clinicalSummary
+    clinicalSummary,
+    scribeTranscript
   );
 
   let formRaw = "";

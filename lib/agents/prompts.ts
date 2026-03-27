@@ -113,12 +113,16 @@ You MUST output valid JSON matching this exact schema. Output ONLY the JSON obje
 export function buildQuestionPrompt(
   patientContext: string,
   requestText: string,
-  isUrgent: boolean
+  isUrgent: boolean,
+  scribeTranscript?: string
 ): string {
+  const transcriptSection = scribeTranscript
+    ? `\nAPPOINTMENT TRANSCRIPT:\n${scribeTranscript}\n`
+    : "";
   return `PROVIDER'S REQUEST:
 ${requestText}
 Urgency: ${isUrgent ? "EXPEDITED" : "Routine"}
-
+${transcriptSection}
 PATIENT RECORDS:
 ${patientContext}
 
@@ -145,10 +149,14 @@ Emphasize objective evidence of treatment failure.`;
 
 export function buildClinicalPrompt(
   patientContext: string,
-  requestText: string
+  requestText: string,
+  scribeTranscript?: string
 ): string {
+  const transcriptSection = scribeTranscript
+    ? `\nAPPOINTMENT TRANSCRIPT:\n${scribeTranscript}\n`
+    : "";
   return `The provider has requested: ${requestText}
-
+${transcriptSection}
 Using these patient records, build the clinical justification section:
 
 ${patientContext}
@@ -163,7 +171,8 @@ export function buildFormAgentPrompt(
   questionAnswers: { question: string; answer: string }[],
   patientSummary: string,
   stepTherapySummary: string,
-  clinicalSummary: string
+  clinicalSummary: string,
+  scribeTranscript?: string
 ): string {
   const answersSection =
     questionAnswers.length > 0
@@ -171,6 +180,9 @@ export function buildFormAgentPrompt(
           .map((qa) => `Q: ${qa.question}\nA: ${qa.answer}`)
           .join("\n\n")}`
       : "";
+  const transcriptSection = scribeTranscript
+    ? `\nAPPOINTMENT TRANSCRIPT:\n${scribeTranscript}\n`
+    : "";
 
   return `Complete the prior authorization form using all of the following information.
 
@@ -178,6 +190,7 @@ PROVIDER'S REQUEST:
 ${requestText}
 Urgency: ${isUrgent ? "EXPEDITED" : "Routine"}
 ${answersSection}
+${transcriptSection}
 
 PATIENT RECORDS (source of truth for all demographic, prescription, and clinical data):
 ${patientContext}

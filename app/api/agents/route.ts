@@ -7,7 +7,7 @@ export const maxDuration = 300; // 5 min timeout for long agent runs
 
 export async function POST(request: Request) {
   const body: AuthRequest = await request.json();
-  const { patientId, requestText, isUrgent, questionAnswers } = body;
+  const { patientId, requestText, isUrgent, questionAnswers, scribeTranscript } = body;
 
   const patient = loadPatient(patientId);
   if (!patient) {
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
 
       try {
         await orchestrate(
-          { patientContext, requestText, isUrgent, questionAnswers },
+          { patientContext, requestText, isUrgent, questionAnswers, scribeTranscript },
           send
         );
       } catch (err) {

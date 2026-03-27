@@ -187,6 +187,7 @@ export default function ProcessingPage() {
           requestText: requestData.requestText,
           isUrgent: requestData.isUrgent,
           questionAnswers: qaList,
+          scribeTranscript: requestData.scribeTranscript,
           ...parallelOutputs.current,
         }),
         signal: abortRef.current.signal,
