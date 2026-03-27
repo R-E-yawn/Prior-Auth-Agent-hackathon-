@@ -12,6 +12,8 @@ import {
   buildClinicalPrompt,
   buildFormAgentPrompt,
 } from "./prompts";
+import { createAIClient, logAgentMetrics } from "./truefoundry-client";
+import { aerospikeCache } from "../cache/aerospike-cache";
 
 const MODEL = "claude-opus-4-6";
 
@@ -26,6 +28,7 @@ async function runAgent(
   userPrompt: string,
   send: SendFn
 ): Promise<string> {
+  const startTime = Date.now();
   send({ type: "agent_start", agentId, label: agentId });
 
   let fullText = "";
@@ -47,7 +50,12 @@ async function runAgent(
     }
   }
 
+  const endTime = Date.now();
   send({ type: "agent_done", agentId });
+
+  // Log metrics for monitoring (auto-tracked in TrueFoundry)
+  logAgentMetrics(agentId, { startTime, endTime, model: MODEL });
+
   return fullText;
 }
 
@@ -110,12 +118,52 @@ export async function orchestrate(
   input: OrchestratorInput,
   send: SendFn
 ): Promise<void> {
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  // Use TrueFoundry AI Gateway for production monitoring & cost tracking
+  const client = createAIClient();
   const { patientContext, requestText, isUrgent, questionAnswers } = input;
 
-  // ── Phase 1: Run 4 agents in parallel ────────────────────────────────────
-  const [questionsRaw, patientSummary, stepTherapySummary, clinicalSummary] =
-    await Promise.all([
+  // Generate session ID for caching
+  const sessionId = Buffer.from(`${patientContext.slice(0, 50)}-${requestText.slice(0, 50)}`).toString('base64');
+
+  // Check Aerospike cache for previously computed agent outputs
+  const cachedOutputs = await aerospikeCache.getAgentOutputs(sessionId);
+
+  let questionsRaw: string;
+  let patientSummary: string;
+  let stepTherapySummary: string;
+  let clinicalSummary: string;
+
+  if (cachedOutputs && questionAnswers.length === 0) {
+    // Cache hit - use previously computed results
+    console.log('[Orchestrator] Using cached agent outputs');
+    questionsRaw = cachedOutputs.questionAgentOutput || '';
+    patientSummary = cachedOutputs.patientSummary || '';
+    stepTherapySummary = cachedOutputs.stepTherapySummary || '';
+    clinicalSummary = cachedOutputs.clinicalSummary || '';
+
+    // Emit cached results to frontend
+    send({ type: "agent_start", agentId: "questions", label: "questions" });
+    send({ type: "agent_chunk", agentId: "questions", text: questionsRaw });
+    send({ type: "agent_done", agentId: "questions" });
+
+    send({ type: "agent_start", agentId: "patient", label: "patient" });
+    send({ type: "agent_chunk", agentId: "patient", text: patientSummary });
+    send({ type: "agent_done", agentId: "patient" });
+
+    send({ type: "agent_start", agentId: "stepTherapy", label: "stepTherapy" });
+    send({ type: "agent_chunk", agentId: "stepTherapy", text: stepTherapySummary });
+    send({ type: "agent_done", agentId: "stepTherapy" });
+
+    send({ type: "agent_start", agentId: "clinical", label: "clinical" });
+    send({ type: "agent_chunk", agentId: "clinical", text: clinicalSummary });
+    send({ type: "agent_done", agentId: "clinical" });
+  } else {
+    // Cache miss - run agents and cache results
+    console.log('[Orchestrator] Running agents (no cache)');
+
+    // ── Phase 1: Run 4 agents in parallel ────────────────────────────────────
+    [questionsRaw, patientSummary, stepTherapySummary, clinicalSummary] =
+      await Promise.all([
       runAgent(
         client,
         "questions",
@@ -137,14 +185,24 @@ export async function orchestrate(
         buildStepTherapyPrompt(patientContext),
         send
       ),
-      runAgent(
-        client,
-        "clinical",
-        CLINICAL_AGENT_SYSTEM,
-        buildClinicalPrompt(patientContext, requestText),
-        send
-      ),
-    ]);
+        runAgent(
+          client,
+          "clinical",
+          CLINICAL_AGENT_SYSTEM,
+          buildClinicalPrompt(patientContext, requestText),
+          send
+        ),
+      ]);
+
+    // Cache the agent outputs for future requests
+    await aerospikeCache.cacheAgentOutputs(sessionId, {
+      questionAgentOutput: questionsRaw,
+      patientSummary,
+      stepTherapySummary,
+      clinicalSummary,
+      timestamp: Date.now(),
+    });
+  }
 
   // Parse and emit questions
   const questions = parseQuestions(questionsRaw);
