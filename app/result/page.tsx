@@ -9,6 +9,9 @@ export default function ResultPage() {
   const router = useRouter();
   const [form, setForm] = useState<PriorAuthForm | null>(null);
   const [request, setRequest] = useState<AuthRequest | null>(null);
+  const [callStatus, setCallStatus] = useState<
+    Record<string, { loading?: boolean; callId?: string; error?: string }>
+  >({});
 
   useEffect(() => {
     const rawForm = sessionStorage.getItem("completedForm");
@@ -21,12 +24,46 @@ export default function ResultPage() {
     setRequest(JSON.parse(rawReq));
   }, [router]);
 
-  const handlePrint = () => window.print();
+  const handlePrint = async () => {
+    if (!form) return;
+    const res = await fetch("/api/pdf-html", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+    const html = await res.text();
+    const win = window.open("", "_blank");
+    if (!win) return;
+    win.document.write(html);
+    win.document.close();
+    // Give the browser a moment to render before triggering print
+    win.setTimeout(() => win.print(), 300);
+  };
 
   const handleStartNew = () => {
     sessionStorage.removeItem("authRequest");
     sessionStorage.removeItem("completedForm");
     router.push("/");
+  };
+
+  const handleCall = async (type: "patient" | "insurance") => {
+    if (!form) return;
+    setCallStatus((prev) => ({ ...prev, [type]: { loading: true } }));
+    try {
+      const res = await fetch("/api/bland/call", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ type, form }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setCallStatus((prev) => ({ ...prev, [type]: { error: data.error ?? "Call failed." } }));
+      } else {
+        setCallStatus((prev) => ({ ...prev, [type]: { callId: data.call_id } }));
+      }
+    } catch {
+      setCallStatus((prev) => ({ ...prev, [type]: { error: "Network error." } }));
+    }
   };
 
   if (!form) {
@@ -62,6 +99,20 @@ export default function ResultPage() {
           </p>
         </div>
         <div className="flex gap-2 flex-wrap">
+          <button
+            onClick={() => handleCall("patient")}
+            disabled={callStatus["patient"]?.loading}
+            className="btn-secondary text-sm"
+          >
+            {callStatus["patient"]?.loading ? "Calling…" : "📞 Call Patient"}
+          </button>
+          <button
+            onClick={() => handleCall("insurance")}
+            disabled={callStatus["insurance"]?.loading}
+            className="btn-secondary text-sm"
+          >
+            {callStatus["insurance"]?.loading ? "Calling…" : "📞 Call Insurance"}
+          </button>
           <button onClick={handlePrint} className="btn-secondary text-sm">
             🖨 Print / Save PDF
           </button>
@@ -85,11 +136,54 @@ export default function ResultPage() {
         </div>
       </div>
 
+      {/* Call status */}
+      {Object.keys(callStatus).length > 0 && (
+        <div className="card p-4 flex flex-col gap-2">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+            Voice Calls
+          </p>
+          {(["patient", "insurance"] as const).map((type) => {
+            const s = callStatus[type];
+            if (!s) return null;
+            if (s.loading) return (
+              <p key={type} className="text-sm text-slate-500">
+                ⏳ {type === "patient" ? "Patient" : "Insurance"} call initiating…
+              </p>
+            );
+            if (s.error) return (
+              <p key={type} className="text-sm text-red-600">
+                ✗ {type === "patient" ? "Patient" : "Insurance"} call failed: {s.error}
+              </p>
+            );
+            if (s.callId) return (
+              <p key={type} className="text-sm text-emerald-700">
+                ✓ {type === "patient" ? "Patient" : "Insurance"} call initiated (ID: {s.callId})
+              </p>
+            );
+            return null;
+          })}
+        </div>
+      )}
+
       {/* The form */}
       <FormDisplay form={form} />
 
       {/* Bottom actions */}
-      <div className="flex gap-3 py-4">
+      <div className="flex gap-3 py-4 flex-wrap">
+        <button
+          onClick={() => handleCall("patient")}
+          disabled={callStatus["patient"]?.loading}
+          className="btn-secondary"
+        >
+          {callStatus["patient"]?.loading ? "Calling…" : "📞 Call Patient"}
+        </button>
+        <button
+          onClick={() => handleCall("insurance")}
+          disabled={callStatus["insurance"]?.loading}
+          className="btn-secondary"
+        >
+          {callStatus["insurance"]?.loading ? "Calling…" : "📞 Call Insurance"}
+        </button>
         <button onClick={handlePrint} className="btn-secondary">
           🖨 Print / Save PDF
         </button>
