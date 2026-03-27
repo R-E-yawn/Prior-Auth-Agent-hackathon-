@@ -10,9 +10,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.52.0",
-    "@types/nunjucks": "^3.2.6",
     "next": "^15.1.0",
-    "nunjucks": "^3.2.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-markdown": "^10.1.0",
