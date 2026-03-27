@@ -32,7 +32,7 @@ async function runAgent(
 
   const stream = client.messages.stream({
     model: MODEL,
-    max_tokens: 2048,
+    max_tokens: 128000,
     system,
     messages: [{ role: "user", content: userPrompt }],
   });
@@ -66,7 +66,7 @@ async function runClinicalAgent(
   // server-side and continues streaming. No client-side tool loop is needed.
   const stream = client.messages.stream({
     model: MODEL,
-    max_tokens: 3000,
+    max_tokens: 128000,
     system: CLINICAL_AGENT_SYSTEM,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tools: [{ type: "web_search_20250305", name: "web_search" }] as any,
@@ -205,7 +205,7 @@ export async function orchestrate(
 
   const formStream = client.messages.stream({
     model: MODEL,
-    max_tokens: 4096,
+    max_tokens: 128000,
     system: FORM_AGENT_SYSTEM,
     messages: [{ role: "user", content: formPrompt }],
   });
