@@ -1,0 +1,36 @@
+STEP THERAPY DOCUMENTATION
+==========================
+
+--- Trial 1 ---
+Drug Name:              Mesalamine (Asacol HD)
+Dose:                   800 mg three times daily
+Start Date:             2024-03-01
+End Date:               2024-08-15
+Duration of Trial:      ~5.5 months
+Outcome / Reason for Discontinuation:
+  Inadequate response. Persistent symptoms throughout trial. Repeat CRP at 5 months
+  remained elevated (38 mg/L). Patient reported no meaningful improvement in stool
+  frequency or abdominal pain. Mesalamine is generally not effective for Crohn's
+  colitis; trial completed per payer requirement.
+
+--- Trial 2 ---
+Drug Name:              Azathioprine
+Dose:                   150 mg once daily
+Start Date:             2024-09-01
+End Date:               2025-03-20
+Duration of Trial:      ~6.5 months
+Outcome / Reason for Discontinuation:
+  Adverse reaction. Patient developed drug-induced hepatotoxicity — ALT elevated to
+  3x ULN at 5-month follow-up (2025-02-10). Drug discontinued per hepatology
+  recommendation. TPMT enzyme level normal; idiosyncratic reaction suspected.
+
+--- Trial 3 ---
+Drug Name:              Budesonide (Entocort EC)
+Dose:                   9 mg once daily, tapered to 6 mg
+Start Date:             2025-04-01
+End Date:               2025-07-01
+Duration of Trial:      3 months
+Outcome / Reason for Discontinuation:
+  Temporary response with relapse on taper. Symptoms returned to baseline within
+  4 weeks of dose reduction. Corticosteroid-dependent pattern confirmed. Long-term
+  steroid use not appropriate; escalation to biologic therapy warranted.

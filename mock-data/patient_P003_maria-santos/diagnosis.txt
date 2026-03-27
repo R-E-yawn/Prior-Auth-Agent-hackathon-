@@ -1,0 +1,9 @@
+DIAGNOSIS
+=========
+Primary ICD-10:   L20.89 — Atopic dermatitis, moderate-to-severe
+Secondary ICD-10: J45.20 — Mild intermittent asthma (comorbid atopic condition)
+
+Relevant Comorbidities:
+- Allergic rhinitis (J30.9)
+- Food allergies: peanut, tree nuts (Z91.010)
+- Anxiety disorder, generalized (F41.1) — worsened by sleep disruption from pruritus

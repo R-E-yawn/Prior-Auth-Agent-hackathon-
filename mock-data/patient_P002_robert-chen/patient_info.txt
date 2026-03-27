@@ -1,0 +1,9 @@
+PATIENT INFORMATION
+===================
+Patient Name:   Robert K. Chen
+Date of Birth:  1963-11-28
+Member ID:      UHC-7723041
+Group #:        GRP-55910
+
+Address:        17 Pinecrest Blvd, Mississauga, ON L5B 3T7
+Phone:          (905) 555-0398

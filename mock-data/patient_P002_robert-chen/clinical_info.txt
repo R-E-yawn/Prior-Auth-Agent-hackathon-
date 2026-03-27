@@ -1,0 +1,33 @@
+CLINICAL INFORMATION
+====================
+Symptoms & Severity:
+  Patient is a 62-year-old male with a 14-year history of Type 2 diabetes, currently
+  poorly controlled despite dual oral therapy. Reports polyuria, polydipsia, and
+  fatigue. Peripheral neuropathy symptoms (burning/tingling in feet) worsening over
+  the past 6 months. BMI 37.4 — significant cardiovascular risk given comorbid
+  hypertension and hyperlipidemia.
+
+Relevant Lab Results:
+  - HbA1c: 9.8% (target <7.0%)                                  [2026-02-20]
+  - Fasting plasma glucose: 14.2 mmol/L                         [2026-02-20]
+  - eGFR: 61 mL/min/1.73m² (CKD stage G2 — mild reduction)     [2026-02-20]
+  - LDL: 3.1 mmol/L (above target)                              [2026-02-20]
+  - ALT: 52 U/L (mildly elevated, consistent with NAFLD)        [2026-02-20]
+  - Blood pressure: 148/92 mmHg at last visit
+
+Why Semaglutide (Ozempic) Is Indicated:
+  Patient has T2DM with HbA1c 9.8% despite metformin + sitagliptin. GLP-1 receptor
+  agonists are recommended per Diabetes Canada guidelines as add-on therapy for
+  patients with inadequate glycemic control and cardiovascular risk factors. Semaglutide
+  additionally provides weight reduction benefit (clinically significant given BMI 37.4)
+  and has demonstrated cardiovascular risk reduction in the SUSTAIN-6 trial. Renal
+  function (eGFR 61) permits safe use.
+
+Why Formulary Alternatives Are Inappropriate:
+  - Insulin glargine (Lantus): Patient has significant needle anxiety and compliance
+    concerns with daily dosing. Endocrinologist prefers to defer insulin initiation.
+    Weekly injection of semaglutide is preferred for adherence.
+  - Pioglitazone: Contraindicated due to NAFLD and fluid retention risk given
+    hypertension. Also associated with weight gain, counter to treatment goals.
+  - Empagliflozin (Jardiance): Trialed previously — see Step Therapy. Discontinued
+    due to recurrent UTIs.

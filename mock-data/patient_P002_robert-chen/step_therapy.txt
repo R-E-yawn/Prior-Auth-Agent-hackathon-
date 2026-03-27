@@ -1,0 +1,36 @@
+STEP THERAPY DOCUMENTATION
+==========================
+
+--- Trial 1 ---
+Drug Name:              Metformin
+Dose:                   1000 mg twice daily
+Start Date:             2021-06-01
+End Date:               (ongoing — still on medication)
+Duration of Trial:      4+ years
+Outcome / Reason for Discontinuation:
+  Partial response. HbA1c improved from 11.2% to 8.6% in first year but has since
+  risen to 9.8%. Metformin continued as background therapy per guidelines; additional
+  agent required.
+
+--- Trial 2 ---
+Drug Name:              Sitagliptin (Januvia)
+Dose:                   100 mg once daily
+Start Date:             2023-01-10
+End Date:               (ongoing — still on medication)
+Duration of Trial:      3+ years
+Outcome / Reason for Discontinuation:
+  Inadequate response as add-on to metformin. HbA1c reduction of only 0.4% observed
+  (from 10.2% to 9.8%). DPP-4 inhibitors have modest efficacy; insufficient for this
+  patient's degree of hyperglycemia.
+
+--- Trial 3 ---
+Drug Name:              Empagliflozin (Jardiance)
+Dose:                   10 mg once daily
+Start Date:             2025-01-15
+End Date:               2025-05-01
+Duration of Trial:      3.5 months
+Outcome / Reason for Discontinuation:
+  Adverse reaction. Patient developed three episodes of urinary tract infection
+  within 3 months, one requiring oral antibiotics. SGLT-2 inhibitor mechanism
+  increases glucosuria, predisposing to genitourinary infections. Discontinued
+  due to recurrent adverse events.

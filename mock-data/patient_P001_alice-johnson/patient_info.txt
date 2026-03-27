@@ -1,0 +1,9 @@
+PATIENT INFORMATION
+===================
+Patient Name:   Alice M. Johnson
+Date of Birth:  1987-04-12
+Member ID:      BCB-4481923
+Group #:        GRP-88201
+
+Address:        342 Elmwood Drive, Burlington, ON L7R 2K9
+Phone:          (905) 555-0174

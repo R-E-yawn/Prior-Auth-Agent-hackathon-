@@ -1,0 +1,28 @@
+CLINICAL INFORMATION
+====================
+Symptoms & Severity:
+  Patient presents with moderate-to-severe Crohn's disease with persistent abdominal
+  cramping (6-8/10 pain scale), 4-6 loose stools per day, rectal bleeding 2-3x/week,
+  and significant fatigue. Weight loss of 8 lbs over the past 3 months.
+
+Relevant Lab Results:
+  - CRP (C-reactive protein): 42 mg/L (elevated; normal <10)  [2026-02-14]
+  - ESR (erythrocyte sedimentation rate): 68 mm/hr (elevated)  [2026-02-14]
+  - Hemoglobin: 10.1 g/dL (low; consistent with anemia)        [2026-02-14]
+  - Fecal calprotectin: 980 mcg/g (markedly elevated)          [2026-01-30]
+  - Colonoscopy (2026-01-15): Active ulceration in ascending and transverse colon,
+    moderate-to-severe mucosal inflammation. No stricture or fistula.
+
+Why Adalimumab (Humira) Is Indicated:
+  Patient has moderate-to-severe Crohn's disease with objective evidence of active
+  inflammation (elevated CRP, calprotectin, endoscopic findings). She has failed
+  two lines of conventional therapy (see Step Therapy). Anti-TNF therapy with
+  adalimumab is indicated per ACG guidelines for induction and maintenance of
+  remission in moderate-to-severe Crohn's disease unresponsive to conventional agents.
+
+Why Formulary Alternatives Are Inappropriate:
+  - Infliximab (Remicade): Patient declined IV infusion therapy due to work schedule
+    constraints and needle phobia related to IV access. Subcutaneous administration
+    preferred for adherence.
+  - Vedolizumab: Considered, but slower onset not appropriate given current disease
+    activity and nutritional decline. Reserved as second-line biologic.

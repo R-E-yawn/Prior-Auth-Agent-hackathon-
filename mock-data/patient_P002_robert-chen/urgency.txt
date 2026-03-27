@@ -1,0 +1,9 @@
+URGENCY
+=======
+Request Type:             Routine
+Expedited Justification:  N/A
+
+Notes:
+  Standard 14-day review is acceptable. Patient is metabolically stable and not in
+  acute crisis. Provider requests timely review given worsening neuropathy and
+  cardiovascular risk profile, but no immediate danger requiring expedited processing.

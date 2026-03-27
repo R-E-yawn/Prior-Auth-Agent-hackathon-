@@ -1,0 +1,11 @@
+PRESCRIBER / REQUESTING PROVIDER
+=================================
+Provider Name:    Dr. Aisha Patel, MD, FRCPC
+NPI:              4561237890
+DEA #:            N/A (non-controlled)
+
+Practice Name:    Toronto Dermatology & Allergy Group
+Address:          600 University Ave, Suite 1740, Toronto, ON M5G 1X5
+Phone:            (416) 555-0933
+Fax:              (416) 555-0934
+Contact Person:   Leo Kim (Medical Secretary)

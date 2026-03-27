@@ -1,0 +1,10 @@
+DIAGNOSIS
+=========
+Primary ICD-10:   E11.65 — Type 2 diabetes mellitus with hyperglycemia
+Secondary ICD-10: E11.40 — Type 2 diabetes mellitus with diabetic neuropathy, unspecified
+
+Relevant Comorbidities:
+- Obesity, class II (E66.09) — BMI 37.4
+- Hypertension (I10)
+- Hyperlipidemia (E78.5)
+- Non-alcoholic fatty liver disease (NAFLD) (K76.0)

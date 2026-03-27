@@ -1,0 +1,9 @@
+URGENCY
+=======
+Request Type:             Expedited
+Expedited Justification:
+  Patient has experienced 8 lbs unintentional weight loss over 3 months with ongoing
+  rectal bleeding and anemia (Hgb 10.1). Continued disease activity without prompt
+  biologic initiation poses risk of hospitalization, nutritional deterioration, and
+  surgical intervention. Standard 14-day review turnaround is clinically inappropriate
+  given current trajectory.

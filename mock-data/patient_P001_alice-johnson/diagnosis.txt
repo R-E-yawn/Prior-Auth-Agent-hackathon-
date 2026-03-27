@@ -1,0 +1,9 @@
+DIAGNOSIS
+=========
+Primary ICD-10:   K50.10 — Crohn's disease of large intestine without complications
+Secondary ICD-10: K50.18 — Crohn's disease of large intestine with other complications
+
+Relevant Comorbidities:
+- Iron-deficiency anemia (D50.9)
+- Fatigue and malaise (R53.83)
+- History of perianal fistula (resolved, 2022)

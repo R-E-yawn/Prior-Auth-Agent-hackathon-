@@ -1,0 +1,10 @@
+REQUESTED MEDICATION
+====================
+Brand Name:               Dupixent
+Generic Name:             Dupilumab
+Strength / Dose:          300 mg / 2 mL
+Route:                    Subcutaneous injection
+Frequency:                Every 2 weeks (biweekly), following loading dose
+Quantity Requested:       2 pens per month
+Days Supply:              28 days
+Expected Duration:        12 months (reassess at 16 weeks per label)

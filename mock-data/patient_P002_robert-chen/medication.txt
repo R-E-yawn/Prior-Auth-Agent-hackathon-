@@ -1,0 +1,10 @@
+REQUESTED MEDICATION
+====================
+Brand Name:               Ozempic
+Generic Name:             Semaglutide
+Strength / Dose:          1 mg / 0.75 mL
+Route:                    Subcutaneous injection
+Frequency:                Once weekly
+Quantity Requested:       1 pen per month (4 doses)
+Days Supply:              28 days
+Expected Duration:        12 months with reassessment

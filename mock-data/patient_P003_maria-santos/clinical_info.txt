@@ -1,0 +1,32 @@
+CLINICAL INFORMATION
+====================
+Symptoms & Severity:
+  Patient is a 24-year-old female with lifelong atopic dermatitis, significantly
+  worsened over the past 18 months. Widespread eczematous plaques affecting face,
+  neck, bilateral antecubital fossae, and trunk. EASI score: 32 (severe). DLQI: 21
+  (extremely large effect on quality of life). Reports intense pruritus (8-9/10),
+  chronic sleep disruption (averaging 4 hours/night), and significant psychosocial
+  impact with social withdrawal. Skin barrier breakdown has led to two secondary
+  Staph aureus skin infections in the past year.
+
+Relevant Lab Results:
+  - IgE (total): 1,840 IU/mL (markedly elevated; normal <100)  [2026-01-18]
+  - Eosinophil count: 0.9 x10^9/L (elevated)                   [2026-01-18]
+  - Patch test: Negative for contact allergen sensitization      [2025-11-05]
+  - Skin swab (2025-09-10): Staphylococcus aureus — treated with cephalexin x 10 days
+  - Skin swab (2026-01-22): Staphylococcus aureus — treated with doxycycline x 7 days
+
+Why Dupilumab (Dupixent) Is Indicated:
+  Patient has moderate-to-severe atopic dermatitis (EASI 32, DLQI 21) refractory to
+  multiple topical and systemic therapies (see Step Therapy). Dupilumab is an IL-4/
+  IL-13 receptor antagonist approved for moderate-to-severe AD in patients 6+ years
+  inadequately controlled on topical therapies. Strong Th2-driven inflammatory profile
+  (elevated IgE, eosinophilia) is consistent with expected responder phenotype.
+
+Why Formulary Alternatives Are Inappropriate:
+  - Cyclosporine: Previously trialed — see Step Therapy. Discontinued due to
+    nephrotoxicity concern (eGFR decline) and hypertension.
+  - Methotrexate: Trialed and failed — see Step Therapy. Inadequate response after
+    4 months and patient declined continued use due to side effects.
+  - Phototherapy (NB-UVB): Patient unable to attend clinic 3x/week due to full-time
+    school and work schedule. No home phototherapy unit accessible.

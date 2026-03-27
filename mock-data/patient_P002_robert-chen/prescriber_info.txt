@@ -1,0 +1,11 @@
+PRESCRIBER / REQUESTING PROVIDER
+=================================
+Provider Name:    Dr. Michael Tran, MD, FRCPC
+NPI:              9876543210
+DEA #:            N/A (non-controlled)
+
+Practice Name:    Trillium Endocrinology & Diabetes Centre
+Address:          2200 Eglinton Ave West, Suite 305, Mississauga, ON L5M 4R2
+Phone:            (905) 555-0512
+Fax:              (905) 555-0513
+Contact Person:   Priya Nair (Prior Auth Coordinator)

@@ -1,0 +1,10 @@
+REQUESTED MEDICATION
+====================
+Brand Name:               Humira
+Generic Name:             Adalimumab
+Strength / Dose:          40 mg / 0.8 mL
+Route:                    Subcutaneous injection
+Frequency:                Every 2 weeks (biweekly)
+Quantity Requested:       2 pens per month
+Days Supply:              28 days
+Expected Duration:        12 months (ongoing maintenance)

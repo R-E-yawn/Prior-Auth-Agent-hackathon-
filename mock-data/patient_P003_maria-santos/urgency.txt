@@ -1,0 +1,9 @@
+URGENCY
+=======
+Request Type:             Expedited
+Expedited Justification:
+  Patient has had two Staph aureus skin infections in the past 5 months secondary
+  to chronic skin barrier breakdown. Active disease is causing severe sleep deprivation
+  (avg 4 hrs/night) and significant mental health impact (documented anxiety exacerbation
+  by treating psychiatrist, 2026-02-01). Further delay in biologic initiation increases
+  risk of additional secondary infection, systemic spread, and psychiatric deterioration.

@@ -1,0 +1,48 @@
+STEP THERAPY DOCUMENTATION
+==========================
+
+--- Trial 1 ---
+Drug Name:              Triamcinolone acetonide (topical corticosteroid, Class III)
+Dose:                   0.1% cream, applied twice daily to affected areas
+Start Date:             2022-05-01
+End Date:               (ongoing PRN — not primary controller)
+Duration of Trial:      Ongoing, 3+ years
+Outcome / Reason for Discontinuation:
+  Partial / temporary response only. Provides short-term relief during flares but
+  no sustained disease control. Prolonged use has caused skin atrophy on face and
+  neck. Cannot be used long-term on facial or flexural areas. Inadequate as primary
+  maintenance therapy for moderate-to-severe disease extent.
+
+--- Trial 2 ---
+Drug Name:              Tacrolimus (Protopic 0.1% ointment — topical calcineurin inhibitor)
+Dose:                   0.1% ointment twice daily
+Start Date:             2023-03-15
+End Date:               2023-09-01
+Duration of Trial:      ~5.5 months
+Outcome / Reason for Discontinuation:
+  Inadequate response. Minimal improvement in EASI score (reduced from 34 to 30
+  at 3 months). Patient also reported significant burning/stinging with application
+  reducing adherence. Steroid-sparing benefit insufficient for disease severity.
+
+--- Trial 3 ---
+Drug Name:              Cyclosporine (Neoral)
+Dose:                   3 mg/kg/day (150 mg twice daily)
+Start Date:             2024-01-10
+End Date:               2024-07-15
+Duration of Trial:      6 months
+Outcome / Reason for Discontinuation:
+  Adverse reaction — nephrotoxicity concern. eGFR declined from 94 to 71 mL/min
+  over 5 months. Blood pressure increased to 138/88 mmHg. Drug discontinued per
+  nephrologist recommendation. Cyclosporine-induced nephrotoxicity and hypertension
+  precludes re-initiation.
+
+--- Trial 4 ---
+Drug Name:              Methotrexate
+Dose:                   15 mg once weekly (oral), with folic acid 5 mg weekly
+Start Date:             2024-09-01
+End Date:               2025-01-20
+Duration of Trial:      ~4.5 months
+Outcome / Reason for Discontinuation:
+  Inadequate response and intolerance. EASI score unchanged at 4 months. Patient
+  experienced persistent nausea, fatigue, and oral ulcers. Dose escalation not
+  attempted due to tolerability. Patient elected to discontinue.

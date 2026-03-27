@@ -1,0 +1,11 @@
+PRESCRIBER / REQUESTING PROVIDER
+=================================
+Provider Name:    Dr. Sandra Okonkwo, MD
+NPI:              1234567890
+DEA #:            N/A (non-controlled)
+
+Practice Name:    Hamilton Gastroenterology Associates
+Address:          88 King Street West, Suite 410, Hamilton, ON L8P 1A2
+Phone:            (905) 555-0210
+Fax:              (905) 555-0211
+Contact Person:   Jamie Reyes (Office Coordinator)
