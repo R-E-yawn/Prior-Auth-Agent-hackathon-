@@ -150,13 +150,18 @@ export default function ProcessingPage() {
 
   const handleGenerateForm = () => {
     if (!requestData) return;
-    // Send all questions (with or without answers) so the orchestrator knows
-    // the user has submitted and proceeds to form generation.
-    const qaList = questions.map((q, i) => ({ question: q, answer: answers[i] ?? "" }));
-    setAgents((prev) => ({ ...prev, form: { status: "idle", output: "" } }));
+    const qaList = questions.map((q, i) => ({
+      question: q,
+      answer: answers[i]?.trim() || "No answer provided",
+    }));
+    // Reset all state for a fresh run with answers included
+    setAgents(initialAgents());
+    setAllParallelDone(false);
     // Set true immediately so the button disappears before the parallel agents
     // re-run — prevents double-clicks from aborting the stream mid-way.
     setFormRunning(true);
+    setPhase("parallel");
+    setError(null);
     runStream(requestData, qaList);
   };
 
