@@ -41,6 +41,26 @@ Prior authorization (PA) is a requirement from insurance payers that a provider 
 
 ---
 
+## Hackathon sponsors — how we used each
+
+We list **every sponsor** we engaged for the build, including pieces that did not land in the final demo or failed during integration, so judges can see intent and scope.
+
+| Sponsor | Role (one line) | How we used it in this project |
+|---|---|---|
+| **AWS** | Models and cloud infrastructure to ship | The app is a Node.js **Next.js** service designed to run on typical AWS paths (e.g. **Amplify**, **ECS/Fargate**, or **Lambda** via adapters). **Inference** is implemented with the **Anthropic API** (`@anthropic-ai/sdk`) in code—we did **not** wire **Amazon Bedrock** in this repo, but the same agent pipeline could call Bedrock-hosted models in production. |
+| **Kiro** | AWS’s agentic IDE — plan before code | Primary **development workflow**: spec-first design (`lib/types.ts`, SSE contract, orchestrator), multi-file edits, and iteration from **plan → execution**. See **`docs/KIRO_WRITEUP.md`** (and **`docs/KIRO_WRITEUP.docx`**) for judges. |
+| **Auth0** | Identity and auth from day one | **Planned** for protecting `/request`, `/processing`, and `/result` and mapping users to tenants. **Not integrated** in the hackathon demo (no login screens or Auth0 SDK in this repo)—would be the first hardening step for a real deployment. |
+| **Bland AI** | Voice AI for calls | **Integrated**: `POST /api/bland/call` builds a payload in `lib/bland.ts` and calls Bland’s outbound API; the **Result** page exposes **Call Patient** and **Call Insurance** (requires `BLAND_API_KEY`). If the key is missing or the API errors, buttons surface the failure—useful for demo honesty. |
+| **Airbyte** | Data pipelines for AI agents | **Evaluated** for syncing EHR / payer feeds into a store the agents read. **Not implemented** here—we use **flat `mock-data/` files** to keep the demo self-contained and avoid standing up connectors during the hackathon. |
+| **Aerospike** | Real-time database for AI | **Evaluated** for low-latency session and PA state (e.g. idempotent runs, audit). **Not integrated**; runtime state is **in-memory + `sessionStorage`** and patient source data is **mock files**. |
+| **TrueFoundry** | Ship and observe agents in production | **Not integrated**. A natural fit for **deploying** this Next.js app and **observing** agent traces/latency once APIs are stable. |
+| **Overmind** | Continuous agent optimization | **Not integrated**. Would apply where we log agent inputs/outputs and iterate prompts or routing in CI—out of scope for the demo build. |
+| **Macroscope** | Understanding engine for your codebase | **Not integrated**. Would accelerate onboarding and **prompt/context** quality by grounding agents in repo structure; we relied on README + types + orchestrator as manual “context” instead. |
+
+**Also in the codebase (not on the sponsor list above):** **Deepgram** powers optional **voice transcription** on the landing page (`hooks/useDeepgramScribe.ts`, `GET /api/deepgram-key`) so providers can dictate the clinical narrative before `/request`.
+
+---
+
 ## Installation
 
 ### Prerequisites
