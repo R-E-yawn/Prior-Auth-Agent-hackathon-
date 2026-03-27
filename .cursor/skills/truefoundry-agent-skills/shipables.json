@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "keywords": ["truefoundry", "mlops", "deployment", "infrastructure", "ai-gateway", "secrets", "guardrails", "mcp"],
+  "categories": ["cloud", "ai-ml", "devops"],
+  "author": {
+    "name": "mnvsk97",
+    "github": "mnvsk97"
+  }
+}
