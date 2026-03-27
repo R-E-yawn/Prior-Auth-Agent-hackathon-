@@ -32,7 +32,7 @@ async function runAgent(
 
   const stream = client.messages.stream({
     model: MODEL,
-    max_tokens: 128000,
+    max_tokens: 1024,
     system,
     messages: [{ role: "user", content: userPrompt }],
   });
@@ -48,42 +48,6 @@ async function runAgent(
   }
 
   send({ type: "agent_done", agentId });
-  return fullText;
-}
-
-// ─── Clinical agent with web search (server-side tool, no loop needed) ───────
-
-async function runClinicalAgent(
-  client: Anthropic,
-  userPrompt: string,
-  send: SendFn
-): Promise<string> {
-  send({ type: "agent_start", agentId: "clinical", label: "clinical" });
-
-  let fullText = "";
-
-  // web_search_20250305 is an Anthropic-hosted tool — the API executes searches
-  // server-side and continues streaming. No client-side tool loop is needed.
-  const stream = client.messages.stream({
-    model: MODEL,
-    max_tokens: 128000,
-    system: CLINICAL_AGENT_SYSTEM,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    tools: [{ type: "web_search_20250305", name: "web_search" }] as any,
-    messages: [{ role: "user", content: userPrompt }],
-  });
-
-  for await (const event of stream) {
-    if (
-      event.type === "content_block_delta" &&
-      event.delta.type === "text_delta"
-    ) {
-      fullText += event.delta.text;
-      send({ type: "agent_chunk", agentId: "clinical", text: event.delta.text });
-    }
-  }
-
-  send({ type: "agent_done", agentId: "clinical" });
   return fullText;
 }
 
@@ -173,8 +137,10 @@ export async function orchestrate(
         buildStepTherapyPrompt(patientContext),
         send
       ),
-      runClinicalAgent(
+      runAgent(
         client,
+        "clinical",
+        CLINICAL_AGENT_SYSTEM,
         buildClinicalPrompt(patientContext, requestText),
         send
       ),
@@ -205,7 +171,7 @@ export async function orchestrate(
 
   const formStream = client.messages.stream({
     model: MODEL,
-    max_tokens: 128000,
+    max_tokens: 4096,
     system: FORM_AGENT_SYSTEM,
     messages: [{ role: "user", content: formPrompt }],
   });
