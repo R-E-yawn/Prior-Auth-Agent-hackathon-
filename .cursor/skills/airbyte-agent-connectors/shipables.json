@@ -1,0 +1,36 @@
+{
+  "version": "1.2.0",
+  "keywords": [
+    "airbyte",
+    "connectors",
+    "saas",
+    "api",
+    "crm",
+    "salesforce",
+    "hubspot",
+    "stripe",
+    "github",
+    "slack",
+    "jira",
+    "shopify",
+    "zendesk",
+    "notion",
+    "linear",
+    "python",
+    "agent",
+    "mcp",
+    "integrations",
+    "etl"
+  ],
+  "categories": [
+    "apis",
+    "data",
+    "ai-ml"
+  ],
+  "author": {
+    "name": "Airbyte",
+    "github": "airbytehq"
+  },
+  "repository": "https://github.com/airbytehq/airbyte-agent-connectors",
+  "homepage": "https://airbyte.com"
+}
