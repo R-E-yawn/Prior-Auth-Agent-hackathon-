@@ -1,93 +1,175 @@
-# How We Used Kiro to Build AuthAI (Prior Authorization Agent)
+# How We Used Kiro to Build AuthAI — Full Project Story
 
-This document is written for hackathon judges. It explains how we used **Kiro**—AWS’s agentic IDE—in a workflow comparable to other AI-native editors (for example Cursor with Claude) to move from **plan → specification → implementation → polish**, and how that shows up in the quality of the shipped project.
+This document is written for hackathon judges. It explains **how we built the entire AuthAI (Prior Authorization Agent) project** using **Kiro**—AWS’s agentic IDE—in the same spirit as Cursor + Claude: **plan → specification → multi-file implementation → polish**, with Kiro features (spec-driven development, steering context, MCP-style doc grounding, agent automation) applied end to end.
 
----
-
-## Summary
-
-We treated Kiro as the **orchestration layer for development**: it helped us keep a clear product story (prior-auth automation), translate that into concrete files and types (`lib/types.ts`, agent prompts, SSE contract), and iterate on UI and API behavior without losing structure. The app’s architecture—parallel agents, streaming SSE, a single orchestrator, typed events—reflects **spec-driven development** first, then **implementation guided by the agent**, not the reverse.
+Companion files: **`KIRO_WRITEUP.md`** (this file) and **`KIRO_WRITEUP.docx`** (export for submission).
 
 ---
 
-## Kiro Features in Practice
+## What we set out to build
+
+**Problem:** Medication prior authorization (PA) is manual: providers repeat structured narratives for payers.
+
+**Product:** A **Next.js** web app where a clinician selects a patient, describes the case (text—and optionally voice), then **four AI specialists** run **in parallel** (questions, patient summary, step therapy, clinical justification). A **form-filling agent** merges outputs (plus any user answers to gaps) into a **typed JSON prior-auth form**. The user reviews, prints/PDFs, and can trigger optional **outbound voice calls**.
+
+That single sentence was the anchor; everything below was implemented as **layers** so Kiro could plan and edit without collapsing the architecture.
+
+---
+
+## How we built it — chronological build phases
+
+### Phase 1 — Foundation (App Router, styling, types)
+
+- **Scaffold:** Next.js 15 **App Router**, TypeScript, Tailwind, ESLint (`package.json`, `next.config.ts`, `tailwind.config.ts`).
+- **Global shell:** `app/layout.tsx` and `app/globals.css` for the header and shared utility classes (`btn-primary`, cards, etc.).
+- **Contracts first:** `lib/types.ts` defines `PatientSummary`, `PatientRecord`, `AuthRequest`, `PriorAuthForm`, agent IDs, `SSEEvent`, and related unions. **Kiro’s spec-driven flow started here**: we treated types as the API between UI, API routes, and prompts—when the agent proposed new fields, it had to update types, prompts, and `FormDisplay` together.
+
+### Phase 2 — Mock “EHR” and patient API
+
+- **Data:** Each patient is a folder under `mock-data/` with seven `.txt` files (`patient_info`, `clinical_info`, etc.)—no real DB for the hackathon.
+- **Server utilities:** `lib/patients.ts` implements `listPatients()`, `loadPatient(id)`, and `buildPatientContext()` (one concatenated string for the LLM).
+- **Route:** `app/api/patients/route.ts` exposes `GET` for the landing page grid.
+
+We used Kiro to keep **filesystem reads** and **summary parsing** in one module so the rest of the app never imports `fs` directly.
+
+### Phase 3 — Multi-agent core (orchestrator + SSE)
+
+- **Prompts:** `lib/agents/prompts.ts` — system prompts and builders for Question, Patient, Step Therapy, Clinical, and Form agents; includes the JSON shape expectations for the final form.
+- **Orchestration:** `lib/agents/orchestrator.ts` — creates an **Anthropic** client, runs **four `stream` calls inside `Promise.all`**, parses question output, then runs the **form agent** with optional `questionAnswers`. Helper `orchestrateFormOnly` supports `POST /api/form` for form-only replays.
+- **Streaming HTTP:** `app/api/agents/route.ts` wraps `orchestrate()` in a `ReadableStream` and emits **Server-Sent Events** (`text/event-stream`).
+
+This was the **densest** part of the project. Kiro helped by:
+
+1. Aligning **event names and payloads** with `SSEEvent` in `lib/types.ts`.
+2. Reusing a single **`send(event)`** pattern for every stage (parallel agents + form).
+3. Pulling **Anthropic streaming** patterns from docs (MCP / tool-grounded lookups) so `messages.stream()` usage stayed correct.
+
+### Phase 4 — Four-step UX (pages)
+
+| Route | File | Purpose |
+|-------|------|---------|
+| `/` | `app/page.tsx` | Lists patients from `GET /api/patients`, form type, optional Deepgram-backed dictation (`useDeepgramScribe`, `ScribeCard`). Persists `scribeTranscript` when navigating forward. |
+| `/request` | `app/request/page.tsx` | Free-text clinical narrative + urgency; serializes `AuthRequest` to `sessionStorage`. |
+| `/processing` | `app/processing/page.tsx` | `POST /api/agents` (or form regeneration via `/api/form`), consumes SSE, drives `AgentCard`, `QuestionPanel`, and merge into final form in `sessionStorage`. |
+| `/result` | `app/result/page.tsx` | Reads completed form, `FormDisplay`, print path, “new auth”, Bland call buttons. |
+
+**Kiro “vibe coding”** showed up most here: iterative layout, step indicators, loading states, and copy—always constrained by **existing types** and routes so we did not fork the demo flow.
+
+### Phase 5 — Components
+
+- **`components/AgentCard.tsx`** — per-agent streaming status and content.
+- **`components/QuestionPanel.tsx`** — gaps from the Question agent + inputs that feed the form agent.
+- **`components/FormDisplay.tsx`** — renders `PriorAuthForm` section by section.
+- **`components/ScribeCard.tsx`** — microphone UX wired to Deepgram.
+
+These were built **after** the SSE contract was stable so props and state matched `lib/types.ts`.
+
+### Phase 6 — Voice and outbound calls (integrators)
+
+- **Deepgram (dictation):** `app/api/deepgram-key/route.ts` returns a key to the client; `hooks/useDeepgramScribe.ts` opens the listen WebSocket for live transcript on step 1.
+- **Bland AI (outbound calls):** `lib/bland.ts` builds compliant payloads; `app/api/bland/call/route.ts` POSTs to Bland’s API; `app/result/page.tsx` triggers patient vs insurance scripts.
+
+Kiro accelerated **boilerplate** (fetch, error JSON, TypeScript interfaces) while we manually verified **phone formatting** and **clinical wording** safety in `buildBlandPayload`.
+
+### Phase 7 — Print / PDF HTML
+
+- **`pdf-prior-auth/template.njk`** — Nunjucks template for a printable PA layout.
+- **`app/api/pdf-html/route.ts`** — Renders HTML from `PriorAuthForm`; the result page opens a window and calls `print()`.
+
+### Phase 8 — Documentation and env wiring
+
+- **`README.md`** — product narrative, install, architecture diagrams, SSE table, sponsor usage.
+- **`.env.example`** — `ANTHROPIC_API_KEY`, `BLAND_API_KEY`, `DEEPGRAM_API_KEY`.
+
+The README became **steering context** for Kiro: when regenerating code, we pointed the agent at “match README architecture.”
+
+---
+
+## Repository map (what lives where)
+
+```
+app/
+  page.tsx, request/page.tsx, processing/page.tsx, result/page.tsx   ← wizard flow
+  api/patients/route.ts          ← list/load discovery
+  api/agents/route.ts            ← full SSE pipeline
+  api/form/route.ts              ← form-only SSE (reuse orchestrator)
+  api/deepgram-key/route.ts      ← optional scribe
+  api/bland/call/route.ts        ← optional outbound calls
+  api/pdf-html/route.ts          ← printable HTML
+lib/
+  types.ts                       ← all contracts
+  patients.ts                    ← mock-data I/O
+  bland.ts                       ← Bland payload builder
+  agents/prompts.ts, orchestrator.ts
+components/                      ← UI building blocks
+hooks/useDeepgramScribe.ts
+mock-data/                       ← per-patient .txt bundles
+pdf-prior-auth/template.njk
+```
+
+This layout is intentional: **one orchestration brain** (`lib/agents/orchestrator.ts`), **thin route handlers**, **dumb-presentational** components where possible—ideal for an agentic IDE that edits multiple files in one task.
+
+---
+
+## Kiro features — tied to how we actually built the repo
 
 ### Spec-driven development
 
-Before expanding the codebase, we aligned on **data contracts and behavior**:
+We did **not** start from a blank `page.tsx`. We started from **`lib/types.ts` and the SSE discriminated union**, then prompts, then orchestrator, then API route, then UI. That order matches Kiro’s strength: **plan and spec before codegen**.
 
-- **Types first**: `PriorAuthForm`, `AuthRequest`, `SSEEvent`, and agent metadata live in `lib/types.ts`. Every API and UI component consumes these shapes, which reduces drift between the streaming pipeline and the UI.
-- **Explicit agent roles**: Each agent has a dedicated system prompt and prompt builder in `lib/agents/prompts.ts`, and execution order is visible in `lib/agents/orchestrator.ts` (parallel four agents, then form synthesis).
-- **Streaming protocol**: The browser and server agree on a discriminated union of SSE events (`SSEEvent` in `lib/types.ts`), so the processing page can switch on `ev.type` predictably.
+### Vibe coding
 
-Kiro’s planning workflow maps naturally to this: **define the spec (types + events + prompts), then generate or refine code against that spec.**
+Rapid iteration on the **processing** and **result** screens—animations, button groups, urgency badges—without breaking the **sessionStorage** contract or event parsing on `app/processing/page.tsx`.
 
-### “Vibe coding” (rapid, goal-directed iteration)
+### Steering docs
 
-Once the skeleton existed, we used conversational iteration to refine UX and copy: step indicators, agent cards, question panels, and result actions (print, outbound calls). The goal was a **coherent demo path** (select → describe → processing → result) rather than isolated snippets. Kiro-style iteration kept changes localized to the relevant route or component while preserving the overall flow.
+**README sections** (data flow diagram, SSE reference) plus **`lib/types.ts`** steered multi-file edits. The agent had a single place to check “what is an `agent_chunk`?”
 
-### Steering docs and project context
+### Agent hooks & MCP
 
-We relied on **high-signal project context** so the agent stayed aligned:
+We granted tooling where useful so the model could **resolve library IDs** and **query docs** (e.g. Next.js streaming responses, Anthropic streaming SDK). That reduced bad imports and wrong handler signatures—critical for `ReadableStream` + SSE.
 
-- **README** as the source of truth for routes, folder layout, and data flow diagrams.
-- **Single orchestration entry** (`orchestrate` in `lib/agents/orchestrator.ts`) so “where do agents run?” has one answer.
-- **Environment variables** documented in `.env.example` (e.g. `ANTHROPIC_API_KEY`, optional voice-related keys).
+### Kiro Powers / automation
 
-Steering does not need to be a separate file; in our case, **README + types + orchestrator** function as the steering surface for both humans and the IDE agent.
-
-### Agent hooks and automation
-
-Where the toolchain supports it, we used **agent permissions and integrations** so the model could safely pull **library documentation** (for example via MCP-style doc resolvers) when touching Next.js App Router, SSE, or the Anthropic streaming API. That reduced hallucinated API shapes and kept `route.ts` handlers and stream code idiomatic.
-
-### MCP (Model Context Protocol)
-
-During development, **MCP-style connections to documentation** helped ground implementation details—request/response shapes for streaming, Next.js route handlers, and SDK usage—without pasting large manuals into the chat. The intent is the same as in Kiro: **ground the agent in real docs, not guesses.**
-
-### Kiro Powers (and comparable IDE automation)
-
-We used **bundled or one-click automations** where available: scaffold routes, adjust imports, run linters, and apply multi-file edits consistently. The value is not “more code”—it is **consistent application of the same patterns** (e.g. every agent path streams through the same `send` callback pattern in the orchestrator).
+Bulk refactors: adding a form field propagated through **types → prompt schema → `FormDisplay`** in one logical change set rather than three disconnected edits.
 
 ---
 
-## From Plan to Execution (End-to-End)
+## From plan to execution (compact checklist)
 
-1. **Plan**: User journey and agent split (patient / clinical / step therapy / questions → form).
-2. **Spec**: TypeScript types + SSE event catalog + prompt responsibilities.
-3. **Execution**: Implement `app/api/agents/route.ts` → `orchestrate()` → UI on `app/processing/page.tsx`.
-4. **Polish**: Result page, PDF/print path, optional outbound voice actions, accessibility-minded layout.
-
-Kiro excelled at **keeping steps 2–4 traceable**: when something changed (e.g. a new field on the form), the agent could update types, prompts, and `FormDisplay` in one coherent pass.
+1. **Plan:** Four parallel agents + form synthesizer + 4-step UI.
+2. **Spec:** Types, SSE events, prompt responsibilities.
+3. **Execution:** `orchestrator.ts` + `route.ts` + `processing/page.tsx`.
+4. **Polish:** Result view, PDF template, Bland, Deepgram, README, sponsor notes.
 
 ---
 
-## Judging Criteria (How We Address Them)
+## Judging criteria
 
 ### Potential value
 
-- **Problem**: Prior authorization is high-friction and repetitive; providers need faster, structured output.
-- **Solution shape**: Multi-agent pipeline with explicit gaps (questions) and a final structured form—usable as a demo and extensible toward real EHR and payer integrations.
-- **Accessibility of the demo**: Web UI, clear steps, printable output, optional notifications—**easy for judges to run** with documented env vars.
+- Addresses a **real operational pain** (PA) with a **clear demo path** and **optional voice** touchpoints.
+- **Runnable locally** with documented keys; printable output suitable for stakeholder review.
 
 ### Implementation (leverage of Kiro)
 
-- **Clear leverage**: The project’s **modularity** (orchestrator, typed events, single SSE entry) is what you want when an agentic IDE generates code—it mirrors how Kiro plans before it writes.
-- **Honest scope**: Not every line was generated blindly; we **reviewed** streaming correctness, error handling, and prompt quality. Kiro accelerated delivery; human judgment preserved clinical and UX sanity.
+- **Modular pipeline** (orchestrator + typed SSE) is exactly what scales under agent-generated code.
+- **Human review** on clinical prompts, streaming edge cases, and API keys—not blind codegen.
 
 ### Quality and design
 
-- **Creativity**: Parallel specialist agents mirror how real PA work is divided (clinical vs step therapy vs documentation gaps).
-- **Originality**: Combining streaming multi-agent output with a **question-answer loop** and a **final JSON form** is a coherent product story, not a single-chat wrapper.
-- **Polish**: Consistent Tailwind styling, step indicators, structured result view, and optional voice follow-up actions demonstrate attention to **demo readiness**.
+- **Specialist agents** mirror real work breakdown.
+- **Streaming UX** shows technical depth beyond a single blocking HTTP call.
+- **Consistent UI** (Tailwind, step flow, cards) reads as a finished demo, not a prototype stub.
 
 ---
 
 ## Relationship to Cursor / Claude
 
-Many teams use **Cursor + Claude** or similar for the same loop: plan in chat, edit across files, run terminal commands. **Kiro sits in the same category**: an agentic IDE that benefits from the same habits—**types and contracts first**, **one orchestration path**, and **steering docs** so generated code stays consistent. Our write-up emphasizes Kiro because it is the sponsor tool; the **workflow principles** apply broadly.
+The same **workflow** applies: **contracts first, one orchestration path, docs-grounded SDK usage**. We document **Kiro** as the sponsor IDE; the repository structure is evidence of **effective agentic development** regardless of brand.
 
 ---
 
 ## Closing
 
-We used Kiro effectively by **forcing structure before volume**: types, events, and prompts as the spec, then letting the agent fill in routes, components, and integrations. That approach is visible in the repository layout and in the clarity of the agent pipeline—exactly what judges should look for when scoring **effective use of an agentic IDE**.
+We built **AuthAI** as a layered Next.js application: **mock patient I/O**, **parallel Claude agents**, **SSE to the browser**, **structured form output**, and **optional voice and print**. **Kiro** was used to plan that structure, generate consistent implementation across files, and iterate on UX while keeping **types and events** as the source of truth—**structure before volume**, end to end.
