@@ -24,7 +24,20 @@ export default function ResultPage() {
     setRequest(JSON.parse(rawReq));
   }, [router]);
 
-  const handlePrint = () => window.print();
+  const handlePrint = async () => {
+    if (!form) return;
+    const res = await fetch("/api/pdf-html", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+    const html = await res.text();
+    const win = window.open("", "_blank");
+    if (!win) return;
+    win.document.write(html);
+    win.document.close();
+    win.setTimeout(() => win.print(), 300);
+  };
 
   const handleStartNew = () => {
     sessionStorage.removeItem("authRequest");
