@@ -154,6 +154,11 @@ export async function orchestrate(
 
   send({ type: "all_parallel_done" });
 
+  // If there are questions but no answers provided yet, stop here and wait for user input
+  if (questions.length > 0 && questionAnswers.length === 0) {
+    return;
+  }
+
   // ── Phase 2: Form filling agent ───────────────────────────────────────────
   send({ type: "form_start" });
 
