@@ -51,6 +51,42 @@ async function runAgent(
   return fullText;
 }
 
+// ─── Clinical agent with web search (server-side tool, no loop needed) ───────
+
+async function runClinicalAgent(
+  client: Anthropic,
+  userPrompt: string,
+  send: SendFn
+): Promise<string> {
+  send({ type: "agent_start", agentId: "clinical", label: "clinical" });
+
+  let fullText = "";
+
+  // web_search_20250305 is an Anthropic-hosted tool — the API executes searches
+  // server-side and continues streaming. No client-side tool loop is needed.
+  const stream = client.messages.stream({
+    model: MODEL,
+    max_tokens: 3000,
+    system: CLINICAL_AGENT_SYSTEM,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    tools: [{ type: "web_search_20250305", name: "web_search" }] as any,
+    messages: [{ role: "user", content: userPrompt }],
+  });
+
+  for await (const event of stream) {
+    if (
+      event.type === "content_block_delta" &&
+      event.delta.type === "text_delta"
+    ) {
+      fullText += event.delta.text;
+      send({ type: "agent_chunk", agentId: "clinical", text: event.delta.text });
+    }
+  }
+
+  send({ type: "agent_done", agentId: "clinical" });
+  return fullText;
+}
+
 // ─── Question parser ──────────────────────────────────────────────────────────
 
 function parseQuestions(raw: string): string[] {
@@ -137,10 +173,8 @@ export async function orchestrate(
         buildStepTherapyPrompt(patientContext),
         send
       ),
-      runAgent(
+      runClinicalAgent(
         client,
-        "clinical",
-        CLINICAL_AGENT_SYSTEM,
         buildClinicalPrompt(patientContext, requestText),
         send
       ),
