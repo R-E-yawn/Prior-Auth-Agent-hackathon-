@@ -150,9 +150,9 @@ export default function ProcessingPage() {
 
   const handleGenerateForm = () => {
     if (!requestData) return;
-    const qaList = questions
-      .map((q, i) => ({ question: q, answer: answers[i] ?? "" }))
-      .filter((qa) => qa.answer.trim());
+    // Send all questions (with or without answers) so the orchestrator knows
+    // the user has submitted and proceeds to form generation.
+    const qaList = questions.map((q, i) => ({ question: q, answer: answers[i] ?? "" }));
     setAgents((prev) => ({ ...prev, form: { status: "idle", output: "" } }));
     setFormRunning(false);
     runStream(requestData, qaList);
