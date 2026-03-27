@@ -154,7 +154,9 @@ export default function ProcessingPage() {
     // the user has submitted and proceeds to form generation.
     const qaList = questions.map((q, i) => ({ question: q, answer: answers[i] ?? "" }));
     setAgents((prev) => ({ ...prev, form: { status: "idle", output: "" } }));
-    setFormRunning(false);
+    // Set true immediately so the button disappears before the parallel agents
+    // re-run — prevents double-clicks from aborting the stream mid-way.
+    setFormRunning(true);
     runStream(requestData, qaList);
   };
 
