@@ -35,6 +35,13 @@ function RequestForm() {
           requestedMedication: "",
         });
       });
+
+    // Pre-fill textarea with scribe transcript if one was recorded
+    const scribeTranscript = sessionStorage.getItem("scribeTranscript");
+    if (scribeTranscript) {
+      setRequestText(scribeTranscript);
+      sessionStorage.removeItem("scribeTranscript");
+    }
   }, [patientId, router]);
 
   const handleSubmit = () => {

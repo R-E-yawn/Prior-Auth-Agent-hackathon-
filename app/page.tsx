@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { PatientSummary } from "@/lib/types";
 import { FORM_TYPES } from "@/lib/types";
+import { ScribeCard } from "@/components/ScribeCard";
+import { useDeepgramScribe } from "@/hooks/useDeepgramScribe";
 
 export default function SelectPage() {
   const router = useRouter();
@@ -11,6 +13,7 @@ export default function SelectPage() {
   const [selectedPatient, setSelectedPatient] = useState<string | null>(null);
   const [selectedForm, setSelectedForm] = useState<string>("medication");
   const [loading, setLoading] = useState(true);
+  const { transcript, isRecording, error: scribeError, start, stop } = useDeepgramScribe();
 
   useEffect(() => {
     fetch("/api/patients")
@@ -21,6 +24,8 @@ export default function SelectPage() {
 
   const handleBegin = () => {
     if (!selectedPatient) return;
+    if (isRecording) stop();
+    if (transcript) sessionStorage.setItem("scribeTranscript", transcript);
     router.push(`/request?patientId=${selectedPatient}&formType=${selectedForm}`);
   };
 
@@ -139,6 +144,15 @@ export default function SelectPage() {
               </button>
             ))}
           </div>
+
+          {/* Medical Scribe */}
+          <ScribeCard
+            transcript={transcript}
+            isRecording={isRecording}
+            error={scribeError}
+            onStart={start}
+            onStop={stop}
+          />
 
           {/* Form preview */}
           <div className="card p-4 bg-slate-50">
