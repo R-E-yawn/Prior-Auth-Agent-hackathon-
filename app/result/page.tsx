@@ -63,7 +63,7 @@ export default function ResultPage() {
   return (
     <div className="max-w-4xl mx-auto flex flex-col gap-6">
       {/* Header */}
-      <div className="flex items-start justify-between gap-4 flex-col sm:flex-row">
+      <div className="flex items-center justify-between gap-6">
         <div>
           <div className="flex items-center gap-2 mb-2">
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
@@ -84,27 +84,31 @@ export default function ResultPage() {
             {new Date().toLocaleDateString("en-CA")}
           </p>
         </div>
-        <div className="flex gap-2 flex-wrap">
-          <button
-            onClick={() => handleCall("patient")}
-            disabled={callStatus["patient"]?.loading}
-            className="btn-secondary text-sm"
-          >
-            {callStatus["patient"]?.loading ? "Calling…" : "📞 Call Patient"}
-          </button>
-          <button
-            onClick={() => handleCall("insurance")}
-            disabled={callStatus["insurance"]?.loading}
-            className="btn-secondary text-sm"
-          >
-            {callStatus["insurance"]?.loading ? "Calling…" : "📞 Call Insurance"}
-          </button>
-          <button onClick={handlePrint} className="btn-secondary text-sm">
-            🖨 Print / Save PDF
-          </button>
-          <button onClick={handleStartNew} className="btn-primary text-sm">
+
+        {/* Action buttons — grouped right */}
+        <div className="flex flex-col items-end gap-2 shrink-0">
+          <button onClick={handleStartNew} className="btn-primary text-sm w-full">
             + New Authorization
           </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleCall("patient")}
+              disabled={callStatus["patient"]?.loading}
+              className="btn-secondary text-sm"
+            >
+              {callStatus["patient"]?.loading ? "Calling…" : "📞 Call Patient"}
+            </button>
+            <button
+              onClick={() => handleCall("insurance")}
+              disabled={callStatus["insurance"]?.loading}
+              className="btn-secondary text-sm"
+            >
+              {callStatus["insurance"]?.loading ? "Calling…" : "📞 Call Insurance"}
+            </button>
+            <button onClick={handlePrint} className="btn-secondary text-sm">
+              🖨 Print
+            </button>
+          </div>
         </div>
       </div>
 
@@ -155,25 +159,25 @@ export default function ResultPage() {
       <FormDisplay form={form} />
 
       {/* Bottom actions */}
-      <div className="flex gap-3 py-4 flex-wrap">
+      <div className="flex justify-end gap-2 py-4">
         <button
           onClick={() => handleCall("patient")}
           disabled={callStatus["patient"]?.loading}
-          className="btn-secondary"
+          className="btn-secondary text-sm"
         >
           {callStatus["patient"]?.loading ? "Calling…" : "📞 Call Patient"}
         </button>
         <button
           onClick={() => handleCall("insurance")}
           disabled={callStatus["insurance"]?.loading}
-          className="btn-secondary"
+          className="btn-secondary text-sm"
         >
           {callStatus["insurance"]?.loading ? "Calling…" : "📞 Call Insurance"}
         </button>
-        <button onClick={handlePrint} className="btn-secondary">
-          🖨 Print / Save PDF
+        <button onClick={handlePrint} className="btn-secondary text-sm">
+          🖨 Print
         </button>
-        <button onClick={handleStartNew} className="btn-primary">
+        <button onClick={handleStartNew} className="btn-primary text-sm">
           + New Authorization
         </button>
       </div>
